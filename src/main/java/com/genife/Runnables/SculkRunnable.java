@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static com.genife.Managers.ConfigManager.*;
+
 public class SculkRunnable extends BukkitRunnable {
     private final CommandSender sender;
     private final int length;
@@ -25,7 +27,7 @@ public class SculkRunnable extends BukkitRunnable {
     private int xDelta;
     private int zDelta;
     private BlockFace direction;
-    private int i;
+    private int counter;
 
     public SculkRunnable(CommandSender sender, int length) {
         this.sender = sender;
@@ -34,7 +36,7 @@ public class SculkRunnable extends BukkitRunnable {
 
     @Override
     public void run() {
-        i++;
+        counter++;
         Integer taskId = this.getTaskId();
 
         // Если в списке нет такого распространения, то добавляем его и назначаем переменные
@@ -47,16 +49,16 @@ public class SculkRunnable extends BukkitRunnable {
 
             switch (direction) {
                 case NORTH:
-                    zDelta = -15;
+                    zDelta = -LINE_DISTANCE;
                     break;
                 case EAST:
-                    xDelta = 15;
+                    xDelta = LINE_DISTANCE;
                     break;
                 case SOUTH:
-                    zDelta = 15;
+                    zDelta = LINE_DISTANCE;
                     break;
                 case WEST:
-                    xDelta = -15;
+                    xDelta = -LINE_DISTANCE;
                     break;
             }
 
@@ -64,7 +66,10 @@ public class SculkRunnable extends BukkitRunnable {
                 // Так и надо, X и Z должны быть переставлены местами
                 // Так как i начинается с нуля, в первый раз координаты не меняются
                 // Во второй - +8 (8), третий - +8 (16), +8 (24) +8 (32)...
-                Location catalystLocation = world.getHighestBlockAt(player.getLocation().add(0, -1, 0).add(direction.getModZ() * i * 8, 0, -direction.getModX() * i * 8)).getLocation();
+                Location catalystLocation = world.getHighestBlockAt(player.getLocation().add(0, -1, 0).add(
+                        direction.getModZ() * i * CATALYST_DISTANCE,
+                        0,
+                        -direction.getModX() * i * CATALYST_DISTANCE)).getLocation();
 
                 while (catalystLocation.getBlock().isLiquid() || catalystLocation.getBlock().getType() == Material.GRASS) {
                     catalystLocation.add(0, -1, 0);
@@ -89,10 +94,10 @@ public class SculkRunnable extends BukkitRunnable {
             fox.setHealth(0.0);
             fox.remove();
         }
-
-        if (i == 110) {
+        // если счётчик достиг значения задержки из конфига - сменяем локацию
+        if (counter == SPREAD_DELAY) {
             sculkManager.updateLocations(taskId, xDelta, zDelta, world, direction);
-            i = 0;
+            counter = 0;
         }
     }
 }

@@ -9,8 +9,9 @@ import org.bukkit.entity.Player;
 
 import java.util.Objects;
 
+import static com.genife.Managers.ConfigManager.*;
+
 public class Command implements CommandExecutor {
-    private static final String incorrect_typing = "§7[§eInfiniteSculk§7] §aНеправильный ввод: §6/isculk [start/stop] [кол-во (если start)]";
     private final InfiniteSculk instance = InfiniteSculk.getInstance();
     private final SculkManager sculkManager = InfiniteSculk.getInstance().getSculkManager();
 
@@ -20,34 +21,35 @@ public class Command implements CommandExecutor {
 
             // проверка, кто отправил команду (игрок/другие источники)
             if (!(sender instanceof Player)) {
-                sender.sendMessage("§7[§eInfiniteSculk§7] §fКоманду следует использовать в игре.");
+                sender.sendMessage(ONLY_IN_GAME_MESSAGE);
                 return false;
             }
 
-            // проверка на права
-            if (!sender.hasPermission("sculk.use")) {
-                sender.sendMessage("§7[§eInfiniteSculk§7] §cУ тебя нет прав на использование этой команды!");
+            // Проверка на права
+            if (!sender.hasPermission("isculk.use")) {
+                sender.sendMessage(NO_PERMISSION_MESSAGE);
                 return false;
             }
 
             if (Objects.equals(args[0], "start")) {
                 if (args.length < 2) {
-                    sender.sendMessage(incorrect_typing);
+                    sender.sendMessage(INCORRECT_TYPING_MESSAGE);
                     return false;
                 }
 
-                int count;
+                // Кол-во повторений катализатора в линии (с отступом X блоков)
+                int lengthRepeatsCount;
 
                 try {
-                    count = Integer.parseInt(args[1]);
+                    lengthRepeatsCount = Integer.parseInt(args[1]);
                 } catch (NumberFormatException e) {
-                    // если кол-во не число, то выводи ошибку
-                    sender.sendMessage(incorrect_typing);
+                    // Если кол-во - не число, то выводим ошибку
+                    sender.sendMessage(INCORRECT_TYPING_MESSAGE);
                     return false;
                 }
 
-                new SculkRunnable(sender, count).runTaskTimer(instance, 0L, 2L);
-                sender.sendMessage("§7[§eInfiniteSculk§7] §7Распространение успешно запущено!");
+                new SculkRunnable(sender, lengthRepeatsCount).runTaskTimer(instance, 0L, 2L);
+                sender.sendMessage(START_MESSAGE);
                 return true;
             }
 
@@ -55,12 +57,11 @@ public class Command implements CommandExecutor {
 
                 sculkManager.stopTasks();
 
-                sender.sendMessage("§7[§eInfiniteSculk§7] §7Все распространения завершены!");
+                sender.sendMessage(STOP_MESSAGE);
                 return true;
             }
         }
-
-        sender.sendMessage(incorrect_typing);
+        sender.sendMessage(INCORRECT_TYPING_MESSAGE);
         return false;
     }
 }

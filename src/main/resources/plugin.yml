@@ -2,6 +2,7 @@ name: InfiniteSculk
 version: ${project.version}
 main: com.genife.InfiniteSculk
 api-version: 1.19
+author: Genife
 commands:
   isculk:
     description: Sculk

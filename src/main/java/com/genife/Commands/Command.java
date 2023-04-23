@@ -46,7 +46,7 @@ public class Command implements CommandExecutor {
                     return false;
                 }
 
-                new SculkRunnable(sender, count).runTaskTimer(instance, 0, 1);
+                new SculkRunnable(sender, count).runTaskTimer(instance, 0L, 2L);
                 sender.sendMessage("§7[§eInfiniteSculk§7] §7Распространение успешно запущено!");
                 return true;
             }
